@@ -15,7 +15,6 @@ import (
 
 func execute(account string, year int, month int) {
     // USAGE REPORT FOR rosenmriprj ON CLUSTER picotte - March 2021
-    cluster := "picotte"
     options := fmt.Sprintf("-n -P cluster AccountUtilizationByUser Account=%s Tree Start=%d-%02d-01 End=%d-%02d-%02d -T billing",
        account, year, month, year, month, 31)
     cmd_options := strings.Split(options, " ")
@@ -30,18 +29,20 @@ func execute(account string, year int, month int) {
         "June", "July", "August", "September", "October",
         "November", "December"}
 
+    rate := 0.0123
+    cluster := "picotte"
     fmt.Printf("USAGE REPORT FOR %s ON CLUSTER %s - %s %d\n", account, cluster, months[month-1], year)
+    fmt.Printf("Rate = $ %.4f per SU\n\n", rate)
 
     outstr := strings.Split(string(out[:]), "\n")
     tre, err := strconv.ParseFloat(strings.Split(outstr[0], "|")[5], 64)
     su := tre / 60.
 
-    rate := 0.0123
     charge := su * rate
     p := message.NewPrinter(language.English)
     charge_str := p.Sprintf("%.2f", charge)
-    fmt.Printf("%16s %20s %18s\n", "Account", "Usage (SU)", "Charge")
-    fmt.Printf("%16s %20.6e        $ %9s\n", account, su, charge_str)
+    fmt.Printf("Compute usage: %8.6e SU\n", su)
+    fmt.Printf("Charge: $ %9s\n", charge_str)
 }
 
 func main() {
