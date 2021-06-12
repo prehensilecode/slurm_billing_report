@@ -25,6 +25,7 @@ func execute(account string, year int, month int, debug bool) {
         end_date = time.Date(year, time.Month(month+1), 0, 0, 0, 0, 0, time.UTC)
     }
 
+
     options := fmt.Sprintf("-n -P cluster AccountUtilizationByUser Account=%s Tree Start=%d-%02d-01 End=%d-%02d-%02d -T billing",
        account, year, month, year, month, int(end_date.Day()))
 
@@ -41,7 +42,7 @@ func execute(account string, year int, month int, debug bool) {
     }
 
     if len(out) == 0 {
-        fmt.Printf("INFO: slurm_billing_report: no data for requested period %d-%02d\n", year, month)
+        fmt.Printf("INFO: slurm_billing_report: no data for project '%s' for requested period %d-%02d\n", account, year, month)
         os.Exit(0)
     }
 
@@ -84,6 +85,11 @@ func main() {
         month, err = strconv.Atoi(m)
         if err != nil {
             panic(err)
+        }
+
+        if month > 12 {
+            fmt.Printf("ERROR: slurm_billing_report: month must be <= 12 (%02d given)", month)
+            os.Exit(5)
         }
     }
 
