@@ -14,7 +14,6 @@ import (
 )
 
 func execute(account string, year int, month int) {
-    // USAGE REPORT FOR rosenmriprj ON CLUSTER picotte - March 2021
     options := fmt.Sprintf("-n -P cluster AccountUtilizationByUser Account=%s Tree Start=%d-%02d-01 End=%d-%02d-%02d -T billing",
        account, year, month, year, month, 31)
     cmd_options := strings.Split(options, " ")
