@@ -13,9 +13,25 @@ import (
     "golang.org/x/text/message"
 )
 
-func execute(account string, year int, month int) {
+func execute(account string, year int, month int, debug bool) {
+    // To calculate last day of a month, use fact that time.Date 
+    // accepts values outside of usual ranges. So, "March 0" 
+    // is the last day of February.
+
+    end_date := time.Now()
+    if month == 12 {
+        end_date = time.Date(year+1, time.Month(1), 0, 0, 0, 0, 0, time.UTC)
+    } else {
+        end_date = time.Date(year, time.Month(month+1), 0, 0, 0, 0, 0, time.UTC)
+    }
+
     options := fmt.Sprintf("-n -P cluster AccountUtilizationByUser Account=%s Tree Start=%d-%02d-01 End=%d-%02d-%02d -T billing",
-       account, year, month, year, month, 31)
+       account, year, month, year, month, int(end_date.Day()))
+
+    if debug {
+        fmt.Printf("DEBUG: options = %s\n\n", options)
+    }
+
     cmd_options := strings.Split(options, " ")
     out, err := exec.Command("sreport", cmd_options...).Output()
 
@@ -83,6 +99,6 @@ func main() {
         fmt.Println("Cannot execute this on Windows")
         os.Exit(1)
     } else {
-        execute(*accountFlag, year, month)
+        execute(*accountFlag, year, month, *debugFlag)
     }
 }
