@@ -40,6 +40,11 @@ func execute(account string, year int, month int, debug bool) {
         panic(err)
     }
 
+    if len(out) == 0 {
+        fmt.Printf("INFO: slurm_billing_report: no data for requested period %d-%02d\n", year, month)
+        os.Exit(0)
+    }
+
     rate := 0.0123
     cluster := "picotte"
     fmt.Printf("USAGE REPORT FOR %s ON CLUSTER %s - %s %d\n", account, cluster, time.Month(month), year)
