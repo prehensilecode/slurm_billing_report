@@ -97,13 +97,13 @@ func main() {
         fmt.Printf("DEBUG: year-month YYYY-MM %4d-%02d\n", year, month)
     }
 
-    if len(*accountFlag) == 0 { 
+    if len(*accountFlag) == 0 {
         fmt.Println("ERROR: slurm_billing_report: Must provide account name")
         os.Exit(3)
     }
 
     if runtime.GOOS == "windows" {
-        fmt.Println("Cannot execute this on Windows")
+        fmt.Println("ERROR: slurm_billing_report: Cannot run on Windows")
         os.Exit(1)
     } else {
         execute(*accountFlag, year, month, *debugFlag)
