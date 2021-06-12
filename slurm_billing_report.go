@@ -40,13 +40,9 @@ func execute(account string, year int, month int, debug bool) {
         panic(err)
     }
 
-    months := [12]string{"January", "February", "March", "April", "May",
-        "June", "July", "August", "September", "October",
-        "November", "December"}
-
     rate := 0.0123
     cluster := "picotte"
-    fmt.Printf("USAGE REPORT FOR %s ON CLUSTER %s - %s %d\n", account, cluster, months[month-1], year)
+    fmt.Printf("USAGE REPORT FOR %s ON CLUSTER %s - %s %d\n", account, cluster, time.Month(month), year)
     fmt.Printf("Rate = $ %.4f per SU\n\n", rate)
 
     outstr := strings.Split(string(out[:]), "\n")
