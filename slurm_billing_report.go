@@ -87,7 +87,7 @@ func main() {
     var opts struct {
         Account string `short:"a" long:"account" required:"true" description:"Account/Project for which to generate report (something like 'xxxxxPrj')"`
         When string `short:"w" long:"when" required:"true" description:"Period for reporting in format YYYY-MM."`
-        Help bool `short:"h" long:"help" description:"Show this help message and exit"`
+        //Help bool `short:"h" long:"help" description:"Show this help message and exit"`
     }
 
 
