@@ -86,8 +86,7 @@ func execute(account string, year int, month int) {
 func main() {
     var opts struct {
         Account string `short:"a" long:"account" required:"true" description:"Account/Project for which to generate report (something like 'xxxxxPrj')"`
-        When string `short:"w" long:"when" required:"true" description:"Period for reporting in format YYYY-MM."`
-        //Help bool `short:"h" long:"help" description:"Show this help message and exit"`
+        When string `short:"w" long:"when" description:"Period for reporting in format YYYY-MM."`
     }
 
 
@@ -104,28 +103,21 @@ func main() {
         }
     }
 
-    currentTime := time.Now()
-    year := int(currentTime.Year())
-    month := int(currentTime.Month())
 
+    year := 0
+    month := 0
     if len(opts.When) > 0 {
         ym := strings.Split(opts.When, "-")
-        y := ym[0]
-        m := ym[1]
-        err := error(nil)
-        year, err = strconv.Atoi(y)
-        if err != nil {
-            panic(err)
-        }
-        month, err = strconv.Atoi(m)
-        if err != nil {
-            panic(err)
-        }
-
+        year, _ = strconv.Atoi(ym[0])
+        month, _ = strconv.Atoi(ym[1])
         if month > 12 {
             fmt.Printf("ERROR: slurm_billing_report: month must be <= 12 (%02d given)", month)
             os.Exit(5)
         }
+    } else {
+        currentTime := time.Now()
+        year = int(currentTime.Year())
+        month = int(currentTime.Month())
     }
 
     if len(opts.Account) == 0 {
