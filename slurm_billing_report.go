@@ -53,6 +53,10 @@ func execute(account string, year int, month int, debug bool) {
 
     outstr := strings.Split(string(out[:]), "\n")
     tre, err := strconv.ParseFloat(strings.Split(outstr[0], "|")[5], 64)
+    if err != nil {
+        fmt.Printf("%s", err)
+        panic(err)
+    }
     su := tre / 60.
 
     charge := su * rate
@@ -60,6 +64,28 @@ func execute(account string, year int, month int, debug bool) {
     charge_str := p.Sprintf("%.2f", charge)
     fmt.Printf("Compute usage: %8.6e SU\n", su)
     fmt.Printf("Charge: $ %9s\n", charge_str)
+
+    fmt.Println("")
+    fmt.Println("")
+
+    fmt.Println("    Per-user usage and charge")
+    fmt.Printf("%20s %8s     %12s      %9s\n", "Name", "User ID", "Usage (SU)", "Charge")
+    for i, s := range(outstr) {
+        if i > 0 && len(s) > 0 {
+            line := strings.Split(s, "|")
+            name := line[3]
+            login := line[2]
+            tre, err := strconv.ParseFloat(line[5], 65)
+            if err != nil {
+                fmt.Printf("%s", err)
+                panic(err)
+            }
+            su := tre / 60.
+            charge_str := p.Sprintf("%.2f", su * rate)
+            fmt.Printf("%20s %8s     %8.6e    $ %9s\n", name, login, su, charge_str)
+        }
+    }
+
 }
 
 func main() {
