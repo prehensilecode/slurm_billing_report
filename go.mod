@@ -2,4 +2,7 @@ module github.com/prehensilecode/slurm_billing_report
 
 go 1.16
 
-require golang.org/x/text v0.3.6
+require (
+	github.com/jessevdk/go-flags v1.5.0 // indirect
+	golang.org/x/text v0.3.6
+)
