@@ -33,7 +33,6 @@ func execute(account string, year int, month int) {
     out, err := exec.Command("sreport", cmd_options...).Output()
 
     if err != nil {
-        fmt.Printf("%s", err)
         panic(err)
     }
 
@@ -48,11 +47,7 @@ func execute(account string, year int, month int) {
     fmt.Printf("Rate = $ %.4f per SU\n\n", rate)
 
     outstr := strings.Split(string(out[:]), "\n")
-    tre, err := strconv.ParseFloat(strings.Split(outstr[0], "|")[5], 64)
-    if err != nil {
-        fmt.Printf("%s", err)
-        panic(err)
-    }
+    tre, _ := strconv.ParseFloat(strings.Split(outstr[0], "|")[5], 64)
     su := tre / 60.
 
     charge := su * rate
@@ -71,11 +66,7 @@ func execute(account string, year int, month int) {
             line := strings.Split(s, "|")
             name := line[3]
             login := line[2]
-            tre, err := strconv.ParseFloat(line[5], 65)
-            if err != nil {
-                fmt.Printf("%s", err)
-                panic(err)
-            }
+            tre, _ := strconv.ParseFloat(line[5], 65)
             su := tre / 60.
             charge_str := p.Sprintf("%.2f", su * rate)
             fmt.Printf("%20s %8s     %8.6e    $ %9s\n", name, login, su, charge_str)
