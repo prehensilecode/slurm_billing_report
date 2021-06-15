@@ -4,16 +4,16 @@ import (
     "fmt"
     "strings"
     "strconv"
-    "flag"
     "os"
     "os/exec"
     "time"
     "runtime"
     "golang.org/x/text/language"
     "golang.org/x/text/message"
+    "github.com/jessevdk/go-flags"
 )
 
-func execute(account string, year int, month int, debug bool) {
+func execute(account string, year int, month int) {
     // To calculate last day of a month, use fact that time.Date 
     // accepts values outside of usual ranges. So, "March 0" 
     // is the last day of February.
@@ -28,10 +28,6 @@ func execute(account string, year int, month int, debug bool) {
 
     options := fmt.Sprintf("-n -P cluster AccountUtilizationByUser Account=%s Tree Start=%d-%02d-01 End=%d-%02d-%02d -T billing",
        account, year, month, year, month, int(end_date.Day()))
-
-    if debug {
-        fmt.Printf("DEBUG: options = %s\n\n", options)
-    }
 
     cmd_options := strings.Split(options, " ")
     out, err := exec.Command("sreport", cmd_options...).Output()
@@ -85,22 +81,35 @@ func execute(account string, year int, month int, debug bool) {
             fmt.Printf("%20s %8s     %8.6e    $ %9s\n", name, login, su, charge_str)
         }
     }
-
 }
 
 func main() {
-    debugFlag := flag.Bool("debug", false, "Debugging")
-    accountFlag := flag.String("account", "", "Account/Project name")
-    whenFlag := flag.String("when", "", "Period in YYYY-MM")
+    var opts struct {
+        Account string `short:"a" long:"account" required:"true" description:"Account/Project for which to generate report (something like 'xxxxxPrj')"`
+        When string `short:"w" long:"when" required:"true" description:"Period for reporting in format YYYY-MM."`
+        Help bool `short:"h" long:"help" description:"Show this help message and exit"`
+    }
 
-    flag.Parse()
+
+    if _, err:= flags.Parse(&opts); err != nil {
+        switch flagsErr := err.(type) {
+            case flags.ErrorType:
+                if flagsErr == flags.ErrHelp {
+                    os.Exit(0)
+                }
+
+                os.Exit(1)
+            default:
+                os.Exit(1)
+        }
+    }
 
     currentTime := time.Now()
     year := int(currentTime.Year())
     month := int(currentTime.Month())
 
-    if len(*whenFlag) > 0 {
-        ym := strings.Split(*whenFlag, "-")
+    if len(opts.When) > 0 {
+        ym := strings.Split(opts.When, "-")
         y := ym[0]
         m := ym[1]
         err := error(nil)
@@ -119,11 +128,7 @@ func main() {
         }
     }
 
-    if *debugFlag {
-        fmt.Printf("DEBUG: year-month YYYY-MM %4d-%02d\n", year, month)
-    }
-
-    if len(*accountFlag) == 0 {
+    if len(opts.Account) == 0 {
         fmt.Println("ERROR: slurm_billing_report: Must provide account name")
         os.Exit(3)
     }
@@ -132,6 +137,6 @@ func main() {
         fmt.Println("ERROR: slurm_billing_report: Cannot run on Windows")
         os.Exit(1)
     } else {
-        execute(*accountFlag, year, month, *debugFlag)
+        execute(opts.Account, year, month)
     }
 }
