@@ -23,7 +23,7 @@ func execute(account string, year int, month int) {
     // add 1 month to get end of period
     end_date := start_date.AddDate(0, 1, 0)
 
-    options := fmt.Sprintf("-n -P cluster AccountUtilizationByUser Account=%s Tree Start=%d-%02d-01 End=%d-%02d-01 -T billing",
+    options := fmt.Sprintf("-n -P cluster AccountUtilizationByUser Account=%s Tree Start=%d-%02d-01 End=%d-%02d-01 -T billing -t hours",
        account, int(start_date.Year()), int(start_date.Month()), int(end_date.Year()), int(end_date.Month()))
 
     cmd_options := strings.Split(options, " ")
@@ -45,7 +45,7 @@ func execute(account string, year int, month int) {
 
     outstr := strings.Split(string(out[:]), "\n")
     tre, _ := strconv.ParseFloat(strings.Split(outstr[0], "|")[5], 64)
-    su := tre / 60.
+    su := tre
 
     charge := su * rate
     p := message.NewPrinter(language.English)
@@ -64,7 +64,7 @@ func execute(account string, year int, month int) {
             name := line[3]
             login := line[2]
             tre, _ := strconv.ParseFloat(line[5], 65)
-            su := tre / 60.
+            su := tre
             charge_str := p.Sprintf("%.2f", su * rate)
             fmt.Printf("%20s %8s     %8.6e    $ %9s\n", name, login, su, charge_str)
         }
