@@ -4,6 +4,7 @@
 *.dll
 *.so
 *.dylib
+slurm_billing_report
 
 # Test binary, built with `go test -c`
 *.test
