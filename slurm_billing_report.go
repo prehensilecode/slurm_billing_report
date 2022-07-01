@@ -66,7 +66,7 @@ func execute(account string, year int, month int) {
             tre, _ := strconv.ParseFloat(line[5], 65)
             su := tre
             charge_str := p.Sprintf("%.2f", su * rate)
-            fmt.Printf("%21s %8s     %8.6e    $ %9s\n", name, login, su, charge_str)
+            fmt.Printf("%23s %8s     %8.6e    $ %9s\n", name, login, su, charge_str)
         }
     }
 }
