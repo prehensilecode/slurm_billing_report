@@ -13,7 +13,7 @@ import (
     "github.com/jessevdk/go-flags"
 )
 
-func execute(account string, year int, month int) {
+func execute(account string, year int, month int, billing bool) {
     // To calculate last day of a month, use fact that time.Date 
     // accepts values outside of usual ranges. So, "March 0" 
     // is the last day of February.
@@ -38,36 +38,58 @@ func execute(account string, year int, month int) {
         os.Exit(0)
     }
 
-    //rate := 0.0123
-    rate := 1.0
     cluster := "cubic"
-    fmt.Printf("USAGE REPORT FOR %s ON CLUSTER %s - %s %d\n", account, cluster, time.Month(month), year)
-    fmt.Printf("Rate = $ %.4f per SU\n\n", rate)
 
     outstr := strings.Split(string(out[:]), "\n")
     tre, _ := strconv.ParseFloat(strings.Split(outstr[0], "|")[5], 64)
     su := tre
 
-    charge := su * rate
     p := message.NewPrinter(language.English)
-    charge_str := p.Sprintf("%.2f", charge)
-    fmt.Printf("Compute usage: %8.6e SU\n", su)
-    fmt.Printf("Charge: $ %9s\n", charge_str)
+
+    rate := 0.
+    if billing {
+        rate := 0.0123
+        fmt.Printf("USAGE REPORT FOR %s ON CLUSTER %s - %s %d\n", account, cluster, time.Month(month), year)
+        fmt.Printf("Rate = $ %.4f per SU\n\n", rate)
+        charge := su * rate
+        charge_str := p.Sprintf("%.2f", charge)
+        fmt.Printf("Compute usage: %8.6e SU\n", su)
+        fmt.Printf("Charge: $ %9s\n", charge_str)
+    } else {
+        fmt.Printf("USAGE REPORT FOR %s ON CLUSTER %s - %s %d\n", account, cluster, time.Month(month), year)
+        fmt.Printf("Compute usage: %8.6e SU\n", su)
+    }
+
 
     fmt.Println("")
     fmt.Println("")
 
-    fmt.Println("    Per-user usage and charge")
-    fmt.Printf("%23s %8s     %12s      %9s\n", "Name", "User ID", "Usage (SU)", "Charge")
-    for i, s := range(outstr) {
-        if i > 0 && len(s) > 0 {
-            line := strings.Split(s, "|")
-            name := strings.Split(line[3], "<")[0]
-            login := line[2]
-            tre, _ := strconv.ParseFloat(line[5], 65)
-            su := tre
-            charge_str := p.Sprintf("%.2f", su * rate)
-            fmt.Printf("%23s %8s     %8.6e    $ %9s\n", name, login, su, charge_str)
+    if billing {
+        fmt.Println("    Per-user usage and charge")
+        fmt.Printf("%23s %8s     %12s      %9s\n", "Name", "User ID", "Usage (SU)", "Charge")
+        for i, s := range(outstr) {
+            if i > 0 && len(s) > 0 {
+                line := strings.Split(s, "|")
+                name := strings.Split(line[3], "<")[0]
+                login := line[2]
+                tre, _ := strconv.ParseFloat(line[5], 65)
+                su := tre
+                charge_str := p.Sprintf("%.2f", su * rate)
+                fmt.Printf("%23s %8s     %8.6e    $ %9s\n", name, login, su, charge_str)
+            }
+        }
+    } else {
+        fmt.Println("    Per-user usage")
+        fmt.Printf("%23s %8s     %12s\n", "Name", "User ID", "Usage (SU)")
+        for i, s := range(outstr) {
+            if i > 0 && len(s) > 0 {
+                line := strings.Split(s, "|")
+                name := strings.Split(line[3], "<")[0]
+                login := line[2]
+                tre, _ := strconv.ParseFloat(line[5], 65)
+                su := tre
+                fmt.Printf("%23s %8s     %8.6e\n", name, login, su)
+            }
         }
     }
 }
@@ -76,6 +98,7 @@ func main() {
     var opts struct {
         Account string `short:"a" long:"account" required:"true" description:"Account/Project for which to generate report (something like 'xxxxxPrj')"`
         When string `short:"w" long:"when" description:"Period for reporting in format YYYY-MM."`
+        Billing bool `short:"b" long:"billing" description:"Show billing cost."`
     }
 
 
@@ -91,7 +114,6 @@ func main() {
                 os.Exit(1)
         }
     }
-
 
     year := 0
     month := 0
@@ -118,6 +140,6 @@ func main() {
         fmt.Println("ERROR: slurm_billing_report: Cannot run on Windows")
         os.Exit(1)
     } else {
-        execute(opts.Account, year, month)
+        execute(opts.Account, year, month, opts.Billing)
     }
 }
