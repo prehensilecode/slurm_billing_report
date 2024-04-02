@@ -38,8 +38,9 @@ func execute(account string, year int, month int) {
         os.Exit(0)
     }
 
-    rate := 0.0123
-    cluster := "picotte"
+    //rate := 0.0123
+    rate := 1.0
+    cluster := "cubic"
     fmt.Printf("USAGE REPORT FOR %s ON CLUSTER %s - %s %d\n", account, cluster, time.Month(month), year)
     fmt.Printf("Rate = $ %.4f per SU\n\n", rate)
 
@@ -61,7 +62,7 @@ func execute(account string, year int, month int) {
     for i, s := range(outstr) {
         if i > 0 && len(s) > 0 {
             line := strings.Split(s, "|")
-            name := line[3]
+            name := strings.Split(line[3], "<")[0]
             login := line[2]
             tre, _ := strconv.ParseFloat(line[5], 65)
             su := tre
