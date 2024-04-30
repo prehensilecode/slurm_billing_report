@@ -6,6 +6,7 @@ import (
     "strconv"
     "os"
     "os/exec"
+    "os/user"
     "time"
     "runtime"
     "golang.org/x/text/language"
@@ -40,6 +41,9 @@ func execute(account string, year int, month int, billing bool) {
 
     cluster := "cubic"
 
+    pi_gecos, _ := user.Lookup(account)
+    pi_name := strings.TrimSpace(strings.Split(pi_gecos.Name, "<")[0])
+
     outstr := strings.Split(string(out[:]), "\n")
     tre, _ := strconv.ParseFloat(strings.Split(outstr[0], "|")[5], 64)
     su := tre
@@ -49,15 +53,15 @@ func execute(account string, year int, month int, billing bool) {
     rate := 0.
     if billing {
         rate := 0.0123
-        fmt.Printf("USAGE REPORT FOR %s ON CLUSTER %s - %s %d\n", account, cluster, time.Month(month), year)
+        fmt.Printf("USAGE REPORT FOR PI %s ON CLUSTER %s - %s %d\n", pi_name, cluster, time.Month(month), year)
         fmt.Printf("Rate = $ %.4f per SU\n\n", rate)
         charge := su * rate
         charge_str := p.Sprintf("%.2f", charge)
-        fmt.Printf("Compute usage: %8.6e SU\n", su)
+        fmt.Printf("Compute usage: %8.6e core-hours\n", su)
         fmt.Printf("Charge: $ %9s\n", charge_str)
     } else {
-        fmt.Printf("USAGE REPORT FOR %s ON CLUSTER %s - %s %d\n", account, cluster, time.Month(month), year)
-        fmt.Printf("Compute usage: %8.6e SU\n", su)
+        fmt.Printf("USAGE REPORT FOR PI %s ON CLUSTER %s - %s %d\n", pi_name, cluster, time.Month(month), year)
+        fmt.Printf("Compute usage: %8.6e core-hours\n", su)
     }
 
 
@@ -66,29 +70,29 @@ func execute(account string, year int, month int, billing bool) {
 
     if billing {
         fmt.Println("    Per-user usage and charge")
-        fmt.Printf("%23s %8s     %12s      %9s\n", "Name", "User ID", "Usage (SU)", "Charge")
+        fmt.Printf("%23s %12s     %12s      %9s\n", "Name", "User ID", "Usage (core-hours)", "Charge")
         for i, s := range(outstr) {
             if i > 0 && len(s) > 0 {
                 line := strings.Split(s, "|")
-                name := strings.Split(line[3], "<")[0]
+                name := strings.TrimSpace(strings.Split(line[3], "<")[0])
                 login := line[2]
                 tre, _ := strconv.ParseFloat(line[5], 65)
                 su := tre
                 charge_str := p.Sprintf("%.2f", su * rate)
-                fmt.Printf("%23s %8s     %8.6e    $ %9s\n", name, login, su, charge_str)
+                fmt.Printf("%23s %12s     %8.6e    $ %9s\n", name, login, su, charge_str)
             }
         }
     } else {
         fmt.Println("    Per-user usage")
-        fmt.Printf("%23s %8s     %12s\n", "Name", "User ID", "Usage (SU)")
+        fmt.Printf("%23s %12s     %12s\n", "Name", "User ID", "Usage (core-hours)")
         for i, s := range(outstr) {
             if i > 0 && len(s) > 0 {
                 line := strings.Split(s, "|")
-                name := strings.Split(line[3], "<")[0]
+                name := strings.TrimSpace(strings.Split(line[3], "<")[0])
                 login := line[2]
                 tre, _ := strconv.ParseFloat(line[5], 65)
                 su := tre
-                fmt.Printf("%23s %8s     %8.6e\n", name, login, su)
+                fmt.Printf("%23s %12s     %8.6e\n", name, login, su)
             }
         }
     }
