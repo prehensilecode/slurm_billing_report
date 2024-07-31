@@ -14,7 +14,7 @@ import (
     "github.com/jessevdk/go-flags"
 )
 
-func execute(account string, year int, month int, billing bool) {
+func execute(cluster string, account string, year int, month int, billing bool) {
     // To calculate last day of a month, use fact that time.Date 
     // accepts values outside of usual ranges. So, "March 0" 
     // is the last day of February.
@@ -38,8 +38,6 @@ func execute(account string, year int, month int, billing bool) {
         fmt.Printf("INFO: slurm_billing_report: no data for project '%s' for requested period %d-%02d\n", account, year, month)
         os.Exit(0)
     }
-
-    cluster := "cubic"
 
     pi_gecos, _ := user.Lookup(account)
     pi_name := strings.TrimSpace(strings.Split(pi_gecos.Name, "<")[0])
@@ -103,6 +101,7 @@ func main() {
         Account string `short:"a" long:"account" required:"true" description:"Account/Project for which to generate report (something like 'xxxxxPrj')"`
         When string `short:"w" long:"when" description:"Period for reporting in format YYYY-MM."`
         Billing bool `short:"b" long:"billing" description:"Show billing cost."`
+        Cluster string `short:"c" long:"cluster" required:"true" description:"Cluster for which to generate report"`
     }
 
 
@@ -140,10 +139,15 @@ func main() {
         os.Exit(3)
     }
 
+    if len(opts.Cluster) == 0 {
+        fmt.Println("ERROR: slurm_billing_report: Must provide cluster name")
+        os.Exit(3)
+    }
+
     if runtime.GOOS == "windows" {
         fmt.Println("ERROR: slurm_billing_report: Cannot run on Windows")
         os.Exit(1)
     } else {
-        execute(opts.Account, year, month, opts.Billing)
+        execute(opts.Cluster, opts.Account, year, month, opts.Billing)
     }
 }
