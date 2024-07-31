@@ -70,7 +70,7 @@ func execute(account string, year int, month int, billing bool) {
 
     if billing {
         fmt.Println("    Per-user usage and charge")
-        fmt.Printf("%23s %12s     %12s      %9s\n", "Name", "User ID", "Usage (core-hours)", "Charge")
+        fmt.Printf("%32s %12s     %12s      %9s\n", "Name", "User ID", "Usage (core-hours)", "Charge")
         for i, s := range(outstr) {
             if i > 0 && len(s) > 0 {
                 line := strings.Split(s, "|")
@@ -79,12 +79,12 @@ func execute(account string, year int, month int, billing bool) {
                 tre, _ := strconv.ParseFloat(line[5], 65)
                 su := tre
                 charge_str := p.Sprintf("%.2f", su * rate)
-                fmt.Printf("%23s %12s     %8.6e    $ %9s\n", name, login, su, charge_str)
+                fmt.Printf("%32s %12s     %8.6e    $ %9s\n", name, login, su, charge_str)
             }
         }
     } else {
         fmt.Println("    Per-user usage")
-        fmt.Printf("%23s %12s     %12s\n", "Name", "User ID", "Usage (core-hours)")
+        fmt.Printf("%32s %12s     %12s\n", "Name", "User ID", "Usage (core-hours)")
         for i, s := range(outstr) {
             if i > 0 && len(s) > 0 {
                 line := strings.Split(s, "|")
@@ -92,7 +92,7 @@ func execute(account string, year int, month int, billing bool) {
                 login := line[2]
                 tre, _ := strconv.ParseFloat(line[5], 65)
                 su := tre
-                fmt.Printf("%23s %12s     %8.6e\n", name, login, su)
+                fmt.Printf("%32s %12s     %8.6e\n", name, login, su)
             }
         }
     }
